@@ -36,7 +36,7 @@ minetest.register_node("locked_sign:sign_wall_locked", {
 	can_dig = function(pos,player)
 		local meta = minetest.env:get_meta(pos);
 		local owner = meta:get_string("owner")
-		return player:get_player_name() == owner or sender:get_player_name() == minetest.setting_get("name")
+		return player:get_player_name() == owner or player:get_player_name() == minetest.setting_get("name")
 	end,
 	on_receive_fields = function(pos, formname, fields, sender)
 		local meta = minetest.env:get_meta(pos)
