@@ -2,6 +2,7 @@
 	Mod by kotolegokot
 	Version 2012.8.13.0
 ]]
+minetest.register_privilege("sign_editor", "Can edit all locked signs")
 minetest.register_node("locked_sign:sign_wall_locked", {
 	description = "Locked Sign",
 	drawtype = "signlike",
@@ -15,9 +16,6 @@ minetest.register_node("locked_sign:sign_wall_locked", {
 	metadata_name = "sign",
 	selection_box = {
 		type = "wallmounted",
-		--wall_top = <default>
-		--wall_bottom = <default>
-		--wall_side = <default>
 	},
 	groups = {choppy=2,dig_immediate=2},
 	legacy_wallmounted = true,
@@ -36,15 +34,18 @@ minetest.register_node("locked_sign:sign_wall_locked", {
 	can_dig = function(pos,player)
 		local meta = minetest.env:get_meta(pos);
 		local owner = meta:get_string("owner")
-		return player:get_player_name() == owner or player:get_player_name() == minetest.setting_get("name")
+		local pname = player:get_player_name()
+		return pname == owner or pname == minetest.setting_get("name")
+			or minetest.check_player_privs(pname, {sign_editor=true})
 	end,
 	on_receive_fields = function(pos, formname, fields, sender)
 		local meta = minetest.env:get_meta(pos)
 		local owner = meta:get_string("owner")
-		if sender:get_player_name() ~= owner and sender:get_player_name() ~= minetest.setting_get("name") then
+		local pname = sender:get_player_name()
+		if pname ~= owner and pname ~= minetest.setting_get("name")
+		  and not minetest.check_player_privs(pname, {sign_editor=true}) then
 			return
 		end
-		--print("Sign at "..minetest.pos_to_string(pos).." got "..dump(fields))
 		local meta = minetest.env:get_meta(pos)
 		fields.text = fields.text or ""
 		print((sender:get_player_name() or "").." wrote \""..fields.text..
